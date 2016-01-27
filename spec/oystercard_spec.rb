@@ -3,7 +3,8 @@ require 'oystercard'
 describe OysterCard do
 
   subject(:card) { described_class.new}
-  let(:station) { double(:station)}
+  let(:station1) { Station.new("Victoria", 1) }
+  let(:station2) { Station.new("Kingston", 1) }
 
   context "card balance" do
 
@@ -23,55 +24,70 @@ describe OysterCard do
 	end
 
 	context 'card operation' do
+    
     before(:each) do
-
-      card.top_up(1)
+      
+      card.top_up(7)
+      
     end
 
-    it  { is_expected.to respond_to(:touch_in).with(1).argument }
-    it  { is_expected.to respond_to(:touch_out).with(1).argument }
 
-		it "stores the entry station" do
-			card.touch_in(station)
-			expect(card.entry_station).to eq station
-		end
-
-		it "clears enty_station" do
-			card.touch_in(station)
-			card.touch_out(station)
-			expect(card.entry_station).to eq nil
-		end
-
+		
+  describe "#touch_in" do
+      
 		it 'in_journey is true after touch in' do
-			card.touch_in(station)
+			card.touch_in(station1)
 			expect(card).to be_in_journey
+    end
+    
+		it "stores the entry station" do
+			card.touch_in(station1)
+			expect(card.entry_station).to eq station1
 		end
-
+    
+    it "charges the penalty fare if not touched out" do
+      card.touch_in(station1)
+      expect(card.touch_in(station2)).to satisfy{ card.history.last.has_value?("No exit station!")}
+    end
+  end
+  
+  describe "#touch_out" do
+  
+	  it "clears entry_station" do
+		 card.touch_in(station1)
+		 card.touch_out(station1)
+		 expect(card.entry_station).to eq nil
+	end
+  
 		it 'in_journey is false after touch out' do
-			card.touch_out(station)
+      card.touch_in(station2)
+			card.touch_out(station1)
 			expect(card).not_to be_in_journey
 		end
-
+    
+    it 'deducts #{OysterCard::MIN_FARE} fare' do
+			card.touch_in(station1)
+			expect{ card.touch_out(station1) }.to change{ card.balance }.by(-1)
+		end
+    
+    it 'charges a penalty fare if not touched in' do
+      expect(card.touch_out(station1)).to satisfy{ card.history.last.has_key?("No entry station!") }
+    end
+  end
+  
     it 'has an empty history when initialised' do
       expect(card.history).to eq []
     end
 
     it 'stores the history of the journeys' do
-      card.touch_in("Victoria")
-      card.touch_out("Kingston")
-      expect(card.history).to eq [{"Victoria"=>"Kingston"}]
-
-    end
-
-    it 'deducts #{OysterCard::MIN_FARE} fare' do
-			card.touch_in(station)
-			expect{card.touch_out(station)}.to change{card.balance}.by(-1)
-		end
-
-	end
+      card.touch_in(station1)
+      card.touch_out(station2)
+      expect(card.history).to eq [{station1=>station2}]
+    end  
+  end
 
 	  it "require a minimum fare of 1" do
-      expect{ card.touch_in(station)}.to raise_error "minimum fare is #{OysterCard::MIN_FARE} pound"
+      expect{ card.touch_in(station1)}.to raise_error "minimum fare is #{OysterCard::MIN_FARE} pound"
     end
 
 end
