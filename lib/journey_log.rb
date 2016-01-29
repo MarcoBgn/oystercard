@@ -1,24 +1,32 @@
 class JourneyLog
-  attr_reader :history
-#  attr_accessor :record_history
-  attr_writer :journey
+  
+  attr_accessor :current
   
   def initialize
-    @history = []
+    @journeys = []
+    @current = Journey.new
   end
   
-  def record_history(journey)
-    history << journey
+  def record_history(current)
+    journeys << current
+  end
+  
+  def show_journeys
+    journeys
   end
   
   def start_journey(entry_station)
-    journey = Journey.new
-    journey.entry_station = entry_station
+    self.current = Journey.new
+    self.current.entry_station = entry_station
   end
   
   def end_journey(exit_station)
-    journey.exit_station = exit_station
-    record_history(journey)
-    journey.complete = true
+    self.current.exit_station = exit_station
+    record_history(current)
+    self.current.complete = true
   end
+  
+  private 
+  
+  attr_reader :journeys
 end

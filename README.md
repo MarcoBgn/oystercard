@@ -7,7 +7,7 @@
 What is it?
 ----------
 
-* This is the work of MarcoCode and Yan-Yi Li on the Makers Academy Week2 project
+* This is the work of Marco Bagnasco and Tom Pickard on the Makers Academy Week 2 project
 
 
 Documentation

@@ -1,6 +1,6 @@
 require 'oystercard'
 
-describe Oystercard do
+describe OysterCard do
 
   subject(:card) { described_class.new }
   let(:station)  { double :station }
@@ -25,10 +25,10 @@ describe Oystercard do
 
   it 'stores one journey in history' do
     
-    card.top_up(Oystercard::MIN_FARE)
+    card.top_up(OysterCard::MIN_FARE)
     card.touch_in(station)
     card.touch_out(station2)
-    expect(card.journey_log.history.last.entry_station).to eq station
+    expect(card.journey_log.show_journeys.last.entry_station).to eq station
     
   end
 
@@ -36,20 +36,20 @@ describe Oystercard do
     
     before do
       
-      card.top_up(Oystercard::MIN_FARE)
+      card.top_up(OysterCard::MIN_FARE)
       card.touch_in(station)
       
     end
 
     it 'tops up the card by the amount passed to it' do
       
-      expect(card.balance).to eq Oystercard::MIN_FARE
+      expect(card.balance).to eq OysterCard::MIN_FARE
       
     end
 
     it 'raises an error if balance is exceed' do
       
-      expect{card.top_up(Oystercard::MAX_BALANCE)}.to raise_error "Maximum balance of #{Oystercard::MAX_BALANCE} exceed"
+      expect{card.top_up(OysterCard::MAX_BALANCE)}.to raise_error "Maximum balance of #{OysterCard::MAX_BALANCE} exceed"
       
     end 
   end
@@ -58,7 +58,7 @@ describe Oystercard do
 
     it 'shows that you are in_journey when you touch in' do
       
-      card.top_up(Oystercard::MIN_FARE)
+      card.top_up(OysterCard::MIN_FARE)
       card.touch_in(station)
       expect(card).to be_in_journey
       
@@ -90,7 +90,7 @@ describe Oystercard do
     it 'deducts min fare when touching out' do
       
       card.touch_in(station)
-      expect{card.touch_out(station)}.to change{card.balance}.by -Oystercard::MIN_FARE
+      expect{card.touch_out(station)}.to change{card.balance}.by -OysterCard::MIN_FARE
       
     end
     
@@ -105,17 +105,17 @@ describe Oystercard do
   describe '#deduct' do
 
     it 'deducts amount from the balance' do
-      card.top_up(Oystercard::MIN_FARE)
+      card.top_up(OysterCard::MIN_FARE)
       card.touch_in(station)
-      expect{card.touch_out(station)}.to change{card.balance}.from(Oystercard::MIN_FARE).to(0)
+      expect{card.touch_out(station)}.to change{card.balance}.from(OysterCard::MIN_FARE).to(0)
     end
   end
 
   it 'remembers the entry station' do
 
-    card.top_up(Oystercard::MIN_FARE)
+    card.top_up(OysterCard::MIN_FARE)
     card.touch_in(station)
-    expect(card.journey.entry_station).to eq station
+    expect(card.journey_log.current.entry_station).to eq station
   end
   
   

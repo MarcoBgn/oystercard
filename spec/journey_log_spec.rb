@@ -6,11 +6,11 @@ describe JourneyLog do
   let(:journey) {double(:journey)}
   
   it 'history starts empty' do
-    expect(journey_log.history).to be_empty    
+    expect(journey_log.show_journeys).to be_empty    
   end
   
   it 'stores journey into history' do
     journey_log.record_history(journey)
-    expect(journey_log.history).to include journey
+    expect(journey_log.show_journeys).to include journey
   end
 end

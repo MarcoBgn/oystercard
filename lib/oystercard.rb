@@ -2,16 +2,17 @@ require_relative "station"
 require_relative "journey"
 require_relative "journey_log"
 
-class Oystercard
+class OysterCard
+  
   MAX_BALANCE = 90
   MIN_FARE = 1
+  
   attr_reader :balance, :entry_station, :journey_log
   attr_accessor :journey
 
   def initialize
     @balance = 0
     @journey_log = JourneyLog.new
-    @journey = Journey.new
   end
 
   def top_up(amount)
@@ -20,7 +21,7 @@ class Oystercard
   end
 
   def touch_in(entry_station)
-     record_incomplete if double_touch_in?
+     return record_incomplete if double_touch_in?
      raise 'Insufficient funds' if insufficient_fund?
      journey_log.start_journey(entry_station)     
   end
@@ -28,11 +29,11 @@ class Oystercard
   def touch_out(exit_station)
      return record_incomplete(true) if double_touch_out?
      journey_log.end_journey(exit_station)
-     deduct(self.journey.fare)
+     deduct(self.journey_log.current.fare)
   end
 
   def in_journey?
-    !self.journey.complete
+    !journey_log.current.complete
   end
 
   private
@@ -42,23 +43,23 @@ class Oystercard
   end
   
   def no_touch_in
-    deduct(self.journey.fare) 
-    self.journey.exit_station = "No Touch Out"
-    journey_log.record_history(@journey)
+    deduct(self.journey_log.current.fare) 
+    self.journey_log.current.exit_station = "No Touch Out"
+    journey_log.record_history(self.journey_log.current)
   end
   
   def no_touch_out  
-    deduct(self.journey.fare) 
-    self.journey.entry_station = "No Touch In"
-    journey_log.record_history(@journey) 
+    deduct(self.journey_log.current.fare) 
+    self.journey_log.current.entry_station = "No Touch In"
+    journey_log.record_history(self.journey_log.current) 
   end
   
   def double_touch_in?
-    self.journey.entry_station != nil && self.journey.exit_station == nil
+    self.journey_log.current.entry_station != nil && self.journey_log.current.exit_station == nil
   end
 
   def double_touch_out?
-    self.journey.entry_station == nil 
+    self.journey_log.current.entry_station == nil 
   end
   
   def deduct(amount)

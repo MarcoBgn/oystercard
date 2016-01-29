@@ -5,7 +5,7 @@ describe 'Oytercard features' do
   describe 'touchin out without touching in' do
     
     it 'deducts a penalty' do
-    card = Oystercard.new
+    card = OysterCard.new
     card.top_up 20
     
     expect{ card.touch_out Station.new("Victoria", 1) }.to change{ card.balance }.by (-6)
@@ -14,7 +14,7 @@ describe 'Oytercard features' do
   
   describe 'fare changes based on station zones' do
     
-    subject(:card) { Oystercard.new }
+    subject(:card) { OysterCard.new }
     
     before do
       card.top_up 20
