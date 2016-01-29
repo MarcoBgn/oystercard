@@ -23,18 +23,12 @@ describe Oystercard do
     
   end
 
-  it 'history of journeys is empty when initialized' do
-    
-    expect(card.history).to be_empty
-    
-  end
-
   it 'stores one journey in history' do
     
     card.top_up(Oystercard::MIN_FARE)
     card.touch_in(station)
     card.touch_out(station2)
-    expect(card.history.last.entry_station).to eq station
+    expect(card.journey_log.history.last.entry_station).to eq station
     
   end
 
@@ -104,14 +98,6 @@ describe Oystercard do
     it 'deducts a penalty when not touched in' do
       
       expect{ card.touch_out(station) }.to change{ card.balance }.by (-6)
-      
-    end
-    
-    
-    it 'records incomplete journey when no touched in' do
-      
-      card.touch_out(station)
-      expect(card.history.last.entry_station).to eq "No Touch In"  
       
     end
   end

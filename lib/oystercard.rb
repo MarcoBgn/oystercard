@@ -1,15 +1,16 @@
 require_relative "station"
 require_relative "journey"
+require_relative "journey_log"
 
 class Oystercard
   MAX_BALANCE = 90
   MIN_FARE = 1
-  attr_reader :balance, :entry_station, :history
+  attr_reader :balance, :entry_station, :journey_log
   attr_accessor :journey
 
   def initialize
     @balance = 0
-    @history = []
+    @journey_log = JourneyLog.new
     @journey = Journey.new
   end
 
@@ -21,12 +22,12 @@ class Oystercard
   def touch_in(entry_station)
      record_incomplete if double_touch_in?
      raise 'Insufficient funds' if insufficient_fund?
-     store_entry_station(entry_station)
+     journey_log.start_journey(entry_station)     
   end
 
   def touch_out(exit_station)
      return record_incomplete(true) if double_touch_out?
-     store_journey(exit_station)
+     journey_log.end_journey(exit_station)
      deduct(self.journey.fare)
   end
 
@@ -43,17 +44,13 @@ class Oystercard
   def no_touch_in
     deduct(self.journey.fare) 
     self.journey.exit_station = "No Touch Out"
-    record_history
+    journey_log.record_history(@journey)
   end
   
   def no_touch_out  
     deduct(self.journey.fare) 
     self.journey.entry_station = "No Touch In"
-    record_history 
-  end
-  
-  def record_history
-    @history << self.journey
+    journey_log.record_history(@journey) 
   end
   
   def double_touch_in?
@@ -74,16 +71,5 @@ class Oystercard
 
   def insufficient_fund?
     @balance < MIN_FARE
-  end
-
-  def store_entry_station(entry_station)
-    self.journey = Journey.new
-    self.journey.entry_station = entry_station
-  end
-
-  def store_journey(exit_station)
-    self.journey.exit_station = exit_station
-    record_history
-    self.journey.complete = true
   end
 end
